@@ -1,0 +1,26 @@
+{
+    "name": "egidijusletukas/php-spotify-client-wrapper",
+    "description": "",
+    "license": "MIT",
+    "homepage": "https://github.com/egidijusletukas/php-spotify-client-wrapper",
+    "keywords": [
+        "spotify"
+    ],
+    "authors": [
+        {
+            "name": "Egidijus Letukas",
+            "email": "egidijus@letukas.lt"
+        }
+    ],
+    "require": {
+        "php": "^7.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^1.12"
+    },
+    "autoload": {
+        "psr-4": {
+            "SpotifyClient\\": "src"
+        }
+    }
+}
