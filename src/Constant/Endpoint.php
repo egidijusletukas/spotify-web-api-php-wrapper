@@ -7,5 +7,6 @@ namespace SpotifyClient\Constant;
  */
 final class Endpoint
 {
+    const ME = '/me';
     const NEW_RELEASES = '/browse/new-releases';
 }

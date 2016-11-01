@@ -5,6 +5,6 @@ namespace SpotifyClient\Constant;
 /**
  * Class Scope.
  */
-class Scope
+final class Scope
 {
 }

@@ -8,4 +8,5 @@ namespace SpotifyClient\Constant;
 final class Request
 {
     const GET = 'GET';
+    const POST = 'POST';
 }

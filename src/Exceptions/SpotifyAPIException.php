@@ -3,9 +3,9 @@
 namespace SpotifyClient\Exceptions;
 
 /**
- * Class SpotifyClientException.
+ * Class SpotifyAPIException.
  */
-class SpotifyClientException extends \Exception
+class SpotifyAPIException extends \Exception
 {
     const DEFAULT = 'Unexpected client exception';
 
@@ -24,9 +24,9 @@ class SpotifyClientException extends \Exception
     ];
 
     /**
-     * SpotifyClientException constructor.
+     * SpotifyAPIException constructor.
      *
-     * @param int $responseCode
+     * @param int|null $responseCode
      */
     public function __construct(int $responseCode = null)
     {
@@ -46,6 +46,6 @@ class SpotifyClientException extends \Exception
             return self::DEFAULT;
         }
 
-        return self::$messages[$responseCode] ?? self::DEFAULT;
+        return $responseCode.' '.self::$messages[$responseCode] ?? self::DEFAULT;
     }
 }

@@ -4,6 +4,8 @@ namespace SpotifyClient;
 
 use GuzzleHttp\Client;
 use SpotifyClient\Constant\Request;
+use SpotifyClient\Constant\Response;
+use SpotifyClient\Exceptions\SpotifyAccountsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -11,66 +13,100 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class Authorization extends Client
 {
-    const URI = 'https://accounts.spotify.com/authorize';
-
-    /**
-     * @var array
-     */
-    private $options;
-
-    /**
-     * Authorization constructor.
-     *
-     * @param OptionsResolver $optionsApp
-     */
-    public function __construct(OptionsResolver $optionsApp)
-    {
-        $this->options = $optionsApp->resolve();
-
-        parent::__construct(['base_uri' => self::URI]);
-    }
+    const URI = 'https://accounts.spotify.com';
 
     /**
      * @return OptionsResolver
      */
-    public static function getOptionsApp() : OptionsResolver
+    private static function getOptionsAuth() : OptionsResolver
     {
-        $required = [
-            'client_id',
-            'client_secret',
-            'redirect_uri',
-        ];
-        $defaults = [
-            'state' => null,
-            'response_type' => 'code',
-        ];
+        $required = ['client_id', 'client_secret', 'redirect_uri'];
+        $defaults = ['state' => null, 'response_type' => 'code', 'scope' => []];
 
         return (new OptionsResolver())
             ->setRequired($required)
             ->setDefaults($defaults);
     }
 
-    public function getHeaders() : array
+    /**
+     * @return OptionsResolver
+     */
+    private static function getOptionsAuthTokens() : OptionsResolver
     {
-        $this->authorizeApplication();
+        $required = [
+            'access_token',
+            'token_type',
+            'scope',
+            'expires_in',
+            'refresh_token',
+        ];
 
-        dump($response);
-        die;
+        return (new OptionsResolver())
+            ->setRequired($required);
     }
 
-    private function authorizeApplication()
+    /**
+     * @param array  $config
+     * @param string $code
+     *
+     * @return array
+     * @throws SpotifyAccountsException
+     */
+    public function getAccessTokens(array $config, string $code) : array
     {
+        $config = self::getOptionsAuth()->resolve($config);
         $options = [
-            'query' => [
-                'client_id' => $this->options['client_id'],
-                'response_type' => $this->options['response_type'],
-                'redirect_uri' => $this->options['redirect_uri'],
-                'state' => $this->options['state'],
+            'form_params' => [
+                'grant_type' => 'authorization_code',
+                'code' => $code,
+                'redirect_uri' => $config['redirect_uri'],
+                'client_id' => $config['client_id'],
+                'client_secret' => $config['client_secret'],
             ],
         ];
-        $response = $this->request(Request::GET, '', $options);
 
-        dump($response->getBody()->getContents());
-        die;
+        try {
+            $response = $this->request(Request::POST, self::URI.'/api/token', $options);
+        } catch (\Exception $ex) {
+            throw new SpotifyAccountsException($ex->getMessage());
+        }
+        if (Response::HTTP_OK !== $response->getStatusCode()) {
+            throw new SpotifyAccountsException('Response status code: '.$response->getStatusCode());
+        }
+
+        $accessTokens = json_decode($response->getBody()->getContents(), true);
+
+        return self::getOptionsAuthTokens()->resolve($accessTokens);
+    }
+
+    /**
+     * @param array $config
+     *
+     * @return string
+     */
+    public function getAuthorizationURL(array $config) : string
+    {
+        $config = self::getOptionsAuth()->resolve($config);
+        $query = [
+            'client_id' => $config['client_id'],
+            'response_type' => $config['response_type'],
+            'redirect_uri' => $config['redirect_uri'],
+            'state' => $config['state'],
+            'scope' => $config['scope'],
+        ];
+
+        return self::URI.'/authorize?'.http_build_query($query);
+    }
+
+    /**
+     * Not implemented
+     * @param array $accessTokens
+     *
+     * @return array
+     */
+    public function refreshAccessTokens(array $accessTokens) : array
+    {
+        /** @todo implement */
+        return $accessTokens;
     }
 }

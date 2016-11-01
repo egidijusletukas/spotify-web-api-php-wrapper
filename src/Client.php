@@ -4,9 +4,11 @@ namespace SpotifyClient;
 
 use GuzzleHttp\Client as ClientGuzzle;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\ResponseInterface;
 use SpotifyClient\Constant\Endpoint;
 use SpotifyClient\Constant\Request;
-use SpotifyClient\Exceptions\SpotifyClientException;
+use SpotifyClient\Exceptions\SpotifyAPIException;
 
 /**
  * Class Client.
@@ -15,22 +17,36 @@ class Client extends ClientGuzzle
 {
     const API_BASE_URI = 'https://api.spotify.com/'.self::API_VERSION;
     const API_VERSION = 'v1';
-
     /**
-     * @var Authorization
+     * @var array
      */
-    private $auth;
+    private $accessTokens = [];
+    /**
+     * @var array
+     */
+    private $headersDefault = [];
 
     /**
      * Client constructor.
      *
-     * @param Authorization $auth
+     * @param array $accessTokens
      */
-    public function __construct(Authorization $auth)
+    public function __construct(array $accessTokens)
     {
-        $this->auth = $auth;
-        $config = ['base_uri' => self::API_BASE_URI];
-        parent::__construct($config);
+        $this->accessTokens = $accessTokens;
+        $this->headersDefault['Authorization'] = 'Bearer '.$accessTokens['access_token'];
+        parent::__construct();
+    }
+
+    /**
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getMe() : array
+    {
+        $response = $this->request(Request::GET, Endpoint::ME);
+
+        return $this->decode($response);
     }
 
     /**
@@ -42,38 +58,65 @@ class Client extends ClientGuzzle
      */
     public function getNewReleases(string $country = '', int $limit = null, int $offset = null) : array
     {
-        $options = $this->getOptions($country, $limit, $offset);
+        $options = [
+            'country' => $country,
+            'limit' => $limit,
+            'offset' => $offset,
+        ];
+        $options = $this->getQuery($options);
         $response = $this->request(Request::GET, Endpoint::NEW_RELEASES, $options);
-        var_dump(__METHOD__, $response);
-        die;
+
+        return $this->decode($response);
     }
 
     /**
      * {@inheritdoc}
-     * @throws SpotifyClientException
+     * @throws SpotifyAPIException
      */
     public function request($method, $uri = '', array $options = [])
     {
-        $options['headers'] = $this->auth->getHeaders();
+        $options[RequestOptions::HEADERS] = array_key_exists(RequestOptions::HEADERS, $options) ?
+            array_merge($options[RequestOptions::HEADERS], $this->headersDefault) :
+            $this->headersDefault;
         try {
-            $response = parent::request($method, $uri, $options);
+            return parent::request($method, self::API_BASE_URI.$uri, $options);
         } catch (ClientException $ex) {
-            throw new SpotifyClientException($ex->getCode());
+            throw new SpotifyAPIException($ex->getCode());
         } catch (\Exception $ex) {
-            throw new SpotifyClientException(null);
+            throw new SpotifyAPIException(null);
         }
-
-        var_dump(__METHOD__, 'RESPONSE GET');
-        die;
     }
 
     /**
+     * @param ResponseInterface $response
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    protected function decode(ResponseInterface $response) : array
+    {
+        $result = json_decode($response->getBody()->getContents(), true);
+        if (!is_array($result)) {
+            throw new SpotifyAPIException('Cannot decode JSON');
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $options
+     *
      * @return array
      */
-    protected function getOptions() : array
+    protected function getQuery(array $options) : array
     {
-        $options = [];
+        $result = [];
+        foreach ($options as $key => $value) {
+            if (!empty($value)) {
+                $result[$key] = $value;
+            }
+        }
 
-        return $options;
+        return empty($result) ? $result : ['query' => $result];
     }
 }
