@@ -3,6 +3,7 @@
 namespace SpotifyClient;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
 use SpotifyClient\Constant\Request;
 use SpotifyClient\Constant\Response;
 use SpotifyClient\Exceptions\SpotifyAccountsException;
@@ -11,9 +12,24 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * Class Authorization.
  */
-class Authorization extends Client
+class Authorization
 {
     const URI = 'https://accounts.spotify.com';
+
+    /**
+     * @var ClientInterface
+     */
+    private $client;
+
+    /**
+     * Authorization constructor.
+     *
+     * @param ClientInterface|null $client
+     */
+    public function __construct(ClientInterface $client = null)
+    {
+        $this->client = null === $client ? new Client() : $client;
+    }
 
     /**
      * @return OptionsResolver
@@ -66,7 +82,7 @@ class Authorization extends Client
         ];
 
         try {
-            $response = $this->request(Request::POST, self::URI.'/api/token', $options);
+            $response = $this->client->request(Request::POST, self::URI.'/api/token', $options);
         } catch (\Exception $ex) {
             throw new SpotifyAccountsException($ex->getMessage());
         }

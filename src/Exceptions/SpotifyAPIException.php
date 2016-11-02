@@ -24,28 +24,32 @@ class SpotifyAPIException extends \Exception
     ];
 
     /**
-     * SpotifyAPIException constructor.
+     * @param string $message
      *
-     * @param int|null $responseCode
+     * @return SpotifyAPIException
      */
-    public function __construct(int $responseCode = null)
+    public static function create(string $message) : SpotifyAPIException
     {
-        $message = self::createMessage($responseCode);
-
-        parent::__construct($message);
+        return new self($message);
     }
 
     /**
      * @param int $responseCode
      *
-     * @return string
+     * @return SpotifyAPIException
      */
-    public static function createMessage(int $responseCode = null) : string
+    public static function createByResponseCode(int $responseCode) : SpotifyAPIException
     {
-        if (null === $responseCode) {
-            return self::DEFAULT;
-        }
+        $message = $responseCode.' '.self::$messages[$responseCode] ?? self::DEFAULT;
 
-        return $responseCode.' '.self::$messages[$responseCode] ?? self::DEFAULT;
+        return new self($message);
+    }
+
+    /**
+     * @return SpotifyAPIException
+     */
+    public static function createUnexpected() : SpotifyAPIException
+    {
+        return new self(self::DEFAULT);
     }
 }

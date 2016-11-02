@@ -55,6 +55,7 @@ class Client extends ClientGuzzle
      * @param int|null $offset
      *
      * @return array
+     * @throws SpotifyAPIException
      */
     public function getNewReleases(string $country = '', int $limit = null, int $offset = null) : array
     {
@@ -81,9 +82,9 @@ class Client extends ClientGuzzle
         try {
             return parent::request($method, self::API_BASE_URI.$uri, $options);
         } catch (ClientException $ex) {
-            throw new SpotifyAPIException($ex->getCode());
+            throw SpotifyAPIException::createByResponseCode($ex->getCode());
         } catch (\Exception $ex) {
-            throw new SpotifyAPIException(null);
+            throw SpotifyAPIException::createUnexpected();
         }
     }
 
@@ -97,7 +98,7 @@ class Client extends ClientGuzzle
     {
         $result = json_decode($response->getBody()->getContents(), true);
         if (!is_array($result)) {
-            throw new SpotifyAPIException('Cannot decode JSON');
+            throw SpotifyAPIException::create('Cannot decode JSON');
         }
 
         return $result;
