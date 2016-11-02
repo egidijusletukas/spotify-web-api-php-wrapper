@@ -26,7 +26,6 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
             'redirect_uri' => 'yxz',
             'scope' => 'playlist-read-private'
         ];
-
         $url = (new Authorization())->getAuthorizationURL($config);
         $expectedUrl = '/authorize?client_id=xyz&response_type=code&redirect_uri=yxz&scope=playlist-read-private';
         static::assertEquals(self::URI.$expectedUrl, $url);
@@ -65,11 +64,7 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $client->expects(static::once())->method('request')->willReturn($response);
         $authorization = new Authorization($client);
 
-        $config = [
-            'client_id' => 'xyz',
-            'client_secret' => 'zyx',
-            'redirect_uri' => 'yxz',
-        ];
+        $config = ['client_id' => 'xyz', 'client_secret' => 'zyx', 'redirect_uri' => 'yxz'];
         $this->expectException(SpotifyAccountsException::class);
         $authorization->getAccessTokens($config, '');
     }
