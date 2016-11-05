@@ -56,6 +56,24 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function getUri()
+    {
+        /** @var \PHPUnit_Framework_MockObject_MockObject|Client $clientAPI */
+        $clientAPI = $this->getMockBuilder(Client::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['request'])
+            ->getMock();
+        $clientAPI
+            ->expects(static::once())
+            ->method('request')
+            ->with('GET', '/users/1/playlists/2')
+            ->willReturn(new Response(200, [], '{}'));
+        $clientAPI->getUserPlaylist('1', '2');
+    }
+
+    /**
+     * @test
+     */
     public function handledRequestException()
     {
         $clientGuzzle = $this->getClientMock();
