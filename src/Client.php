@@ -8,19 +8,24 @@ use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\ResponseInterface;
 use SpotifyClient\Constant\Endpoint;
 use SpotifyClient\Constant\Request;
+use SpotifyClient\DataType\AccessTokens;
 use SpotifyClient\Exceptions\SpotifyAPIException;
 
 /**
  * Class Client.
  */
-class Client extends ClientGuzzle
+class Client
 {
     const API_BASE_URI = 'https://api.spotify.com/'.self::API_VERSION;
     const API_VERSION = 'v1';
     /**
-     * @var array
+     * @var ClientGuzzle
      */
-    private $accessTokens = [];
+    protected $client;
+    /**
+     * @var AccessTokens
+     */
+    private $accessTokens;
     /**
      * @var array
      */
@@ -29,13 +34,14 @@ class Client extends ClientGuzzle
     /**
      * Client constructor.
      *
-     * @param array $accessTokens
+     * @param AccessTokens      $accessTokens
+     * @param ClientGuzzle|null $client
      */
-    public function __construct(array $accessTokens)
+    public function __construct(AccessTokens $accessTokens, ClientGuzzle $client = null)
     {
         $this->accessTokens = $accessTokens;
-        $this->headersDefault['Authorization'] = 'Bearer '.$accessTokens['access_token'];
-        parent::__construct();
+        $this->headersDefault['Authorization'] = 'Bearer '.$accessTokens->getAccessToken();
+        $this->client = null === $client ? new ClientGuzzle() : $client;
     }
 
     /**
@@ -80,7 +86,7 @@ class Client extends ClientGuzzle
             array_merge($options[RequestOptions::HEADERS], $this->headersDefault) :
             $this->headersDefault;
         try {
-            return parent::request($method, self::API_BASE_URI.$uri, $options);
+            return $this->client->request($method, self::API_BASE_URI.$uri, $options);
         } catch (ClientException $ex) {
             throw SpotifyAPIException::createByResponseCode($ex->getCode());
         } catch (\Exception $ex) {

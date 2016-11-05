@@ -6,8 +6,10 @@ use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use SpotifyClient\Constant\Request;
 use SpotifyClient\Constant\Response;
+use SpotifyClient\DataType\AccessTokens;
 use SpotifyClient\Exceptions\SpotifyAccountsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
  * Class Authorization.
@@ -65,10 +67,10 @@ class Authorization
      * @param array  $config
      * @param string $code
      *
-     * @return array
+     * @return AccessTokens
      * @throws SpotifyAccountsException
      */
-    public function getAccessTokens(array $config, string $code) : array
+    public function getAccessTokens(array $config, string $code) : AccessTokens
     {
         $config = self::getOptionsAuth()->resolve($config);
         $options = [
@@ -91,8 +93,14 @@ class Authorization
         }
 
         $accessTokens = json_decode($response->getBody()->getContents(), true);
+        $accessTokens = self::getOptionsAuthTokens()->resolve($accessTokens);
 
-        return self::getOptionsAuthTokens()->resolve($accessTokens);
+        return (new AccessTokens())
+            ->setAccessToken($accessTokens['access_token'])
+            ->setTokenType($accessTokens['token_type'])
+            ->setScope($accessTokens['scope'])
+            ->setExpiresIn($accessTokens['expires_in'])
+            ->setRefreshToken($accessTokens['refresh_token']);
     }
 
     /**
