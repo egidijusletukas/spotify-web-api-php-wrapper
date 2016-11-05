@@ -45,18 +45,6 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function catchExceptionOnRequest()
-    {
-        $client = $this->getClientMock();
-        $client->expects(static::once())->method('request')->willThrowException(new \Exception());
-        $authorization = new Authorization($client);
-        $this->expectException(SpotifyAccountsException::class);
-        $authorization->getAccessTokens(self::$accessTokensConfig, '');
-    }
-
-    /**
-     * @test
-     */
     public function exceptionGettingAccessTokensWithEmptyConfig()
     {
         $config = [];
@@ -112,6 +100,18 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
         static::assertEquals($body['scope'], $accessTokens->getScope());
         static::assertSame($body['expires_in'], $accessTokens->getExpiresIn());
         static::assertEquals($body['refresh_token'], $accessTokens->getRefreshToken());
+    }
+
+    /**
+     * @test
+     */
+    public function handledRequestException()
+    {
+        $client = $this->getClientMock();
+        $client->expects(static::once())->method('request')->willThrowException(new \Exception());
+        $authorization = new Authorization($client);
+        $this->expectException(SpotifyAccountsException::class);
+        $authorization->getAccessTokens(self::$accessTokensConfig, '');
     }
 
     /**

@@ -65,11 +65,7 @@ class Client
      */
     public function getNewReleases(string $country = '', int $limit = null, int $offset = null) : array
     {
-        $options = [
-            'country' => $country,
-            'limit' => $limit,
-            'offset' => $offset,
-        ];
+        $options = ['country' => $country, 'limit' => $limit, 'offset' => $offset];
         $options = $this->getQuery($options);
         $response = $this->request(Request::GET, Endpoint::NEW_RELEASES, $options);
 
@@ -77,10 +73,14 @@ class Client
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $method
+     * @param string $uri
+     * @param array  $options
+     *
+     * @return ResponseInterface
      * @throws SpotifyAPIException
      */
-    public function request($method, $uri = '', array $options = [])
+    public function request(string $method, string $uri = '', array $options = []) : ResponseInterface
     {
         $options[RequestOptions::HEADERS] = array_key_exists(RequestOptions::HEADERS, $options) ?
             array_merge($options[RequestOptions::HEADERS], $this->headersDefault) :
