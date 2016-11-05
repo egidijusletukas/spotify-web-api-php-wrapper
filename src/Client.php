@@ -104,7 +104,7 @@ class Client
     {
         $result = json_decode($response->getBody()->getContents(), true);
         if (!is_array($result)) {
-            throw SpotifyAPIException::create('Cannot decode JSON');
+            throw SpotifyAPIException::create(SpotifyAPIException::INVALID_JSON);
         }
 
         return $result;

@@ -8,6 +8,7 @@ namespace SpotifyClient\Exceptions;
 class SpotifyAPIException extends \Exception
 {
     const DEFAULT = 'Unexpected client exception';
+    const INVALID_JSON = 'Cannot decode JSON';
 
     /**
      * @var array

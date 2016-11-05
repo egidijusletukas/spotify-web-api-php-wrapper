@@ -19,12 +19,29 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function exceptionOnInvalidJson()
+    {
+        $clientGuzzle = $this->getClientMock();
+        $clientGuzzle
+            ->expects(static::once())
+            ->method('request')
+            ->willReturn(new Response(200, [], ''));
+
+        $clientAPI = new Client($this->getAccessTokens(), $clientGuzzle);
+        $this->expectException(SpotifyAPIException::class);
+        $this->expectExceptionMessage(SpotifyAPIException::INVALID_JSON);
+        $clientAPI->getMe();
+    }
+
+    /**
+     * @test
+     */
     public function getQuery()
     {
         $clientGuzzle = $this->getClientMock();
         $expectedOptions = [
             'query' => ['limit' => 10, 'offset' => 10],
-            'headers' => ['Authorization' => 'Bearer '.self::ACCESS_TOKEN]
+            'headers' => ['Authorization' => 'Bearer '.self::ACCESS_TOKEN],
         ];
         $clientGuzzle
             ->expects(static::once())
@@ -35,7 +52,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $clientAPI = new Client($this->getAccessTokens(), $clientGuzzle);
         $clientAPI->getNewReleases('', 10, 10);
     }
-    
+
     /**
      * @test
      */
@@ -54,14 +71,19 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function requestingWithAuthHeaders()
     {
         $clientGuzzle = $this->getClientMock();
-        $expectedOptions = ['headers' => ['Authorization' => 'Bearer '.self::ACCESS_TOKEN]];
+        $expectedOptions = [
+            'headers' => [
+                'header-x' => 'x',
+                'Authorization' => 'Bearer '.self::ACCESS_TOKEN,
+            ],
+        ];
         $clientGuzzle
             ->expects(static::once())
             ->method('request')
             ->with('GET', Client::API_BASE_URI, $expectedOptions)
             ->willReturn(new Response());
         $clientAPI = new Client($this->getAccessTokens(), $clientGuzzle);
-        $clientAPI->request('GET');
+        $clientAPI->request('GET', '', ['headers' => ['header-x' => 'x']]);
     }
 
     /**
