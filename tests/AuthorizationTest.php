@@ -14,21 +14,44 @@ use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 class AuthorizationTest extends \PHPUnit_Framework_TestCase
 {
     const URI = 'https://accounts.spotify.com';
+    /**
+     * @var array
+     */
+    private static $accessTokensConfig = [
+        'client_id' => 'xyz',
+        'client_secret' => 'zyx',
+        'redirect_uri' => 'yxz'
+    ];
+    /**
+     * @var array
+     */
+    private static $authUrlConfig = [
+        'client_id' => 'xyz',
+        'client_secret' => 'zyx',
+        'redirect_uri' => 'yxz',
+        'scope' => 'playlist-read-private',
+    ];
 
     /**
      * @test
      */
     public function authorizationUrl()
     {
-        $config = [
-            'client_id' => 'xyz',
-            'client_secret' => 'zyx',
-            'redirect_uri' => 'yxz',
-            'scope' => 'playlist-read-private',
-        ];
-        $url = (new Authorization())->getAuthorizationURL($config);
+        $url = (new Authorization())->getAuthorizationURL(self::$authUrlConfig);
         $expectedUrl = '/authorize?client_id=xyz&response_type=code&redirect_uri=yxz&scope=playlist-read-private';
         static::assertEquals(self::URI.$expectedUrl, $url);
+    }
+
+    /**
+     * @test
+     */
+    public function catchExceptionOnRequest()
+    {
+        $client = $this->getClientMock();
+        $client->expects(static::once())->method('request')->willThrowException(new \Exception());
+        $authorization = new Authorization($client);
+        $this->expectException(SpotifyAccountsException::class);
+        $authorization->getAccessTokens(self::$accessTokensConfig, '');
     }
 
     /**
@@ -61,9 +84,8 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $client->expects(static::once())->method('request')->willReturn($response);
         $authorization = new Authorization($client);
 
-        $config = ['client_id' => 'xyz', 'client_secret' => 'zyx', 'redirect_uri' => 'yxz'];
         $this->expectException(SpotifyAccountsException::class);
-        $authorization->getAccessTokens($config, '');
+        $authorization->getAccessTokens(self::$accessTokensConfig, '');
     }
 
     /**
@@ -83,8 +105,7 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $client->expects(static::once())->method('request')->willReturn($response);
         $authorization = new Authorization($client);
 
-        $config = ['client_id' => 'xyz', 'client_secret' => 'zyx', 'redirect_uri' => 'yxz'];
-        $accessTokens = $authorization->getAccessTokens($config, '');
+        $accessTokens = $authorization->getAccessTokens(self::$accessTokensConfig, '');
 
         static::assertEquals($body['access_token'], $accessTokens->getAccessToken());
         static::assertEquals($body['token_type'], $accessTokens->getTokenType());
