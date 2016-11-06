@@ -16,7 +16,7 @@ use SpotifyClient\Exceptions\SpotifyAPIException;
  */
 class Client
 {
-    const API_BASE_URI = 'https://api.spotify.com/'.self::API_VERSION;
+    const API_BASE_URL = 'https://api.spotify.com/'.self::API_VERSION;
     const API_VERSION = 'v1';
     /**
      * @var ClientGuzzle
@@ -46,14 +46,15 @@ class Client
 
     /**
      * @param string $id
+     * @param string $market
      *
      * @return array
      * @throws SpotifyAPIException
      */
-    public function getAlbum(string $id)
+    public function getAlbum(string $id, string $market = '')
     {
         $uri = $this->getUri(Endpoint::ALBUM, ['id' => $id]);
-        $response = $this->request(Request::GET, $uri);
+        $response = $this->request(Request::GET, $uri, $this->getQuery(['market' => $market]));
 
         return $this->decode($response);
     }
@@ -73,14 +74,19 @@ class Client
     }
 
     /**
-     * @param array $ids
+     * @param array  $ids
+     * @param string $market
      *
      * @return array
      * @throws SpotifyAPIException
      */
-    public function getAlbums(array $ids)
+    public function getAlbums(array $ids, string $market = '')
     {
-        $response = $this->request(Request::GET, Endpoint::ALBUMS, $this->getQuery(['ids' => $ids]));
+        $response = $this->request(
+            Request::GET,
+            Endpoint::ALBUMS,
+            $this->getQuery(['ids' => $ids, 'market' => $market])
+        );
 
         return $this->decode($response);
     }
@@ -302,7 +308,7 @@ class Client
             array_merge($options[RequestOptions::HEADERS], $this->headersDefault) :
             $this->headersDefault;
         try {
-            return $this->client->request($method, self::API_BASE_URI.$uri, $options);
+            return $this->client->request($method, self::API_BASE_URL.$uri, $options);
         } catch (ClientException $ex) {
             throw SpotifyAPIException::createByResponseCode($ex->getCode());
         } catch (\Exception $ex) {

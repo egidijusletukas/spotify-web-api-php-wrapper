@@ -21,7 +21,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
      */
     public function exceptionOnInvalidJson()
     {
-        $clientGuzzle = $this->getClientMock();
+        $clientGuzzle = $this->getGuzzleClientMock();
         $clientGuzzle
             ->expects(static::once())
             ->method('request')
@@ -36,9 +36,35 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function getAlbum()
+    {
+        $response = $this->getResponseJSON('album');
+        $options = ['query' => ['market' => 'FR']];
+        $uri = '/albums/xyz';
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $album = $client->getAlbum('xyz', 'FR');
+        static::assertArrayHasKey('album_type', $album);
+    }
+
+    /**
+     * @test
+     */
+    public function getAlbums()
+    {
+        $response = $this->getResponseJSON('albums');
+        $options = ['query' => ['ids' => ['xyz', 'zyx'], 'market' => 'FR']];
+        $uri = '/albums';
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $albums = $client->getAlbums(['xyz', 'zyx'], 'FR');
+        static::assertArrayHasKey('albums', $albums);
+    }
+
+    /**
+     * @test
+     */
     public function getQuery()
     {
-        $clientGuzzle = $this->getClientMock();
+        $clientGuzzle = $this->getGuzzleClientMock();
         $expectedOptions = [
             'query' => ['limit' => 10, 'offset' => 10],
             'headers' => ['Authorization' => 'Bearer '.self::ACCESS_TOKEN],
@@ -46,7 +72,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $clientGuzzle
             ->expects(static::once())
             ->method('request')
-            ->with('GET', Client::API_BASE_URI.Endpoint::NEW_RELEASES, $expectedOptions)
+            ->with('GET', Client::API_BASE_URL.Endpoint::NEW_RELEASES, $expectedOptions)
             ->willReturn(new Response(200, [], '{}'));
 
         $clientAPI = new Client($this->getAccessTokens(), $clientGuzzle);
@@ -76,7 +102,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
      */
     public function handledRequestException()
     {
-        $clientGuzzle = $this->getClientMock();
+        $clientGuzzle = $this->getGuzzleClientMock();
         $clientGuzzle->expects(static::once())->method('request')->willThrowException(new \Exception());
         $clientAPI = new Client($this->getAccessTokens(), $clientGuzzle);
         $this->expectException(SpotifyAPIException::class);
@@ -88,7 +114,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
      */
     public function requestingWithAuthHeaders()
     {
-        $clientGuzzle = $this->getClientMock();
+        $clientGuzzle = $this->getGuzzleClientMock();
         $expectedOptions = [
             'headers' => [
                 'header-x' => 'x',
@@ -98,7 +124,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $clientGuzzle
             ->expects(static::once())
             ->method('request')
-            ->with('GET', Client::API_BASE_URI, $expectedOptions)
+            ->with('GET', Client::API_BASE_URL, $expectedOptions)
             ->willReturn(new Response());
         $clientAPI = new Client($this->getAccessTokens(), $clientGuzzle);
         $clientAPI->request('GET', '', ['headers' => ['header-x' => 'x']]);
@@ -109,12 +135,11 @@ class ClientTest extends \PHPUnit_Framework_TestCase
      */
     public function responseIsArray()
     {
-        $responseJson = file_get_contents(__DIR__.'/Data/me.json');
-        $clientGuzzle = $this->getClientMock();
+        $clientGuzzle = $this->getGuzzleClientMock();
         $clientGuzzle
             ->expects(static::once())
             ->method('request')
-            ->willReturn(new Response(200, [], $responseJson));
+            ->willReturn(new Response(200, [], $this->getResponseJSON('me')));
         $clientAPI = new Client($this->getAccessTokens(), $clientGuzzle);
         $response = $clientAPI->getMe();
 
@@ -132,13 +157,47 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param string $method
+     * @param string $uri
+     * @param array  $options
+     * @param string $response
+     * @param null   $matcher
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|Client
+     */
+    private function getClientMock(string $method, string $uri, array $options, string $response, $matcher = null)
+    {
+        $client = $this->getMockBuilder(Client::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['request'])
+            ->getMock();
+        $client
+            ->expects(null === $matcher ? static::once() : $matcher)
+            ->method('request')
+            ->with($method, $uri, $options)
+            ->willReturn(new Response(200, [], $response));
+
+        return $client;
+    }
+
+    /**
      * @return \PHPUnit_Framework_MockObject_MockObject
      */
-    private function getClientMock()
+    private function getGuzzleClientMock()
     {
         return $this->getMockBuilder(GuzzleClient::class)
             ->disableOriginalConstructor()
             ->setMethods(['request'])
             ->getMock();
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return string
+     */
+    private function getResponseJSON(string $name)
+    {
+        return file_get_contents(__DIR__.'/Data/'.$name.'.json');
     }
 }

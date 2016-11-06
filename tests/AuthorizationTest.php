@@ -13,7 +13,7 @@ use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
  */
 class AuthorizationTest extends \PHPUnit_Framework_TestCase
 {
-    const URI = 'https://accounts.spotify.com';
+    const URL = 'https://accounts.spotify.com';
     /**
      * @var array
      */
@@ -38,8 +38,8 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
     public function authorizationUrl()
     {
         $url = (new Authorization())->getAuthorizationURL(self::$authUrlConfig);
-        $expectedUrl = '/authorize?client_id=xyz&response_type=code&redirect_uri=yxz&scope=playlist-read-private';
-        static::assertEquals(self::URI.$expectedUrl, $url);
+        $expectedUri = '/authorize?client_id=xyz&response_type=code&redirect_uri=yxz&scope=playlist-read-private';
+        static::assertEquals(self::URL.$expectedUri, $url);
     }
 
     /**

@@ -16,7 +16,7 @@ use Symfony\Component\PropertyAccess\PropertyAccess;
  */
 class Authorization
 {
-    const URI = 'https://accounts.spotify.com';
+    const URL = 'https://accounts.spotify.com';
 
     /**
      * @var ClientInterface
@@ -84,7 +84,7 @@ class Authorization
         ];
 
         try {
-            $response = $this->client->request(Request::POST, self::URI.'/api/token', $options);
+            $response = $this->client->request(Request::POST, self::URL.'/api/token', $options);
         } catch (\Exception $ex) {
             throw new SpotifyAccountsException($ex->getMessage());
         }
@@ -119,7 +119,7 @@ class Authorization
             'scope' => $config['scope'],
         ];
 
-        return self::URI.'/authorize?'.http_build_query($query);
+        return self::URL.'/authorize?'.http_build_query($query);
     }
 
     /**
