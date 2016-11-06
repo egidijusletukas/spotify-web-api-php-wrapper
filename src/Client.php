@@ -310,6 +310,101 @@ class Client
     }
 
     /**
+     * @param int|null $limit
+     * @param int|null $offset
+     * @param string   $market
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getMeAlbums(int $limit = null, int $offset = null, string $market = '') : array
+    {
+        $options = ['limit' => $limit, 'offset' => $offset, 'market' => $market];
+        $response = $this->request(Request::GET, Endpoint::ME_ALBUMS, $this->getQuery($options));
+
+        return $this->decode($response);
+    }
+
+    /**
+     * @param string   $type
+     * @param int|null $limit
+     * @param string   $after
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getMeFollowedArtists(string $type = 'artist', int $limit = null, string $after = '') : array
+    {
+        $options = ['type' => $type, 'limit' => $limit, 'after' => $after];
+        $response = $this->request(Request::GET, Endpoint::ME_FOLLOWED_ARTISTS, $this->getQuery($options));
+
+        return $this->decode($response);
+    }
+
+    /**
+     * @param string $type
+     * @param array  $ids
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getMeFollowedContains(string $type, array $ids) : array
+    {
+        $options = ['type' => $type, 'ids' => implode(',', $ids)];
+        $response = $this->request(Request::GET, Endpoint::ME_FOLLOWED_CONTAINS, $this->getQuery($options));
+
+        return $this->decode($response);
+    }
+
+    /**
+     * @param int|null $limit
+     * @param int|null $offset
+     * @param string   $market
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getMeSavedTracks(int $limit = null, int $offset = null, string $market = '') : array
+    {
+        $options = ['limit' => $limit, 'offset' => $offset, 'market' => $market];
+        $response = $this->request(Request::GET, Endpoint::ME_SAVED_TRACKS, $this->getQuery($options));
+
+        return $this->decode($response);
+    }
+
+    /**
+     * @param array $ids
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getMeSavedTracksContains(array $ids) : array
+    {
+        $options = ['ids' => $ids];
+        $response = $this->request(Request::GET, Endpoint::ME_SAVED_TRACKS_CONTAINS, $this->getQuery($options));
+
+        return $this->decode($response);
+    }
+
+    /**
+     * @param string   $type
+     * @param int|null $limit
+     * @param int|null $offset
+     * @param string   $timeRange
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getMeTop(string $type, int $limit = null, int $offset = null, string $timeRange = '') : array
+    {
+        $uri = $this->getUri(Endpoint::ME_TOP, ['type' => $type]);
+        $options = ['limit' => $limit, 'offset' => $offset, 'time_range' => $timeRange];
+        $response = $this->request(Request::GET, $uri, $this->getQuery($options));
+
+        return $this->decode($response);
+    }
+
+    /**
      * @param string   $country
      * @param int|null $limit
      * @param int|null $offset

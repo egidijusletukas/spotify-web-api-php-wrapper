@@ -7,6 +7,9 @@ use GuzzleHttp\Psr7\Response;
 use SpotifyClient\Client;
 use SpotifyClient\Constant\AlbumType;
 use SpotifyClient\Constant\Endpoint;
+use SpotifyClient\Constant\MeFollowedContainsType;
+use SpotifyClient\Constant\MeTopTimeRange;
+use SpotifyClient\Constant\MeTopType;
 use SpotifyClient\DataType\AccessTokens;
 use SpotifyClient\Exceptions\SpotifyAPIException;
 
@@ -264,6 +267,87 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $client = $this->getClientMock('GET', $uri, [], $response);
         $me = $client->getMe();
         static::assertArrayHasKey('birthdate', $me);
+    }
+
+    /**
+     * @test
+     */
+    public function getMeAlbums()
+    {
+        $response = $this->getResponseJSON('me_albums');
+        $uri = '/me/albums';
+        $options = ['query' => ['limit' => 10, 'offset' => 1, 'market' => self::MARKET]];
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $albums = $client->getMeAlbums(10, 1, self::MARKET);
+        static::assertArrayHasKey('items', $albums);
+    }
+
+    /**
+     * @test
+     */
+    public function getMeFollowedArtists()
+    {
+        $response = $this->getResponseJSON('me_followed_artists');
+        $uri = '/me/following';
+        $options = ['query' => ['type' => 'artist', 'limit' => 10, 'after' => self::ID]];
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $artists = $client->getMeFollowedArtists('artist', 10, self::ID);
+        static::assertArrayHasKey('artists', $artists);
+    }
+
+    /**
+     * @test
+     */
+    public function getMeFollowedContains()
+    {
+        $response = $this->getResponseJSON('me_followed_contains_artist');
+        $uri = '/me/following/contains';
+        $options = ['query' => ['type' => MeFollowedContainsType::ARTIST, 'ids' => implode(',', self::IDS)]];
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $contains = $client->getMeFollowedContains(MeFollowedContainsType::ARTIST, self::IDS);
+        static::assertCount(1, $contains);
+        static::assertTrue(reset($contains));
+    }
+
+    /**
+     * @test
+     */
+    public function getMeSavedTracks()
+    {
+        $response = $this->getResponseJSON('me_saved_tracks');
+        $uri = '/me/tracks';
+        $options = ['query' => ['limit' => 10, 'offset' => 1, 'market' => self::MARKET]];
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $tracks = $client->getMeSavedTracks(10, 1, self::MARKET);
+        static::assertArrayHasKey('items', $tracks);
+    }
+
+    /**
+     * @test
+     */
+    public function getMeSavedTracksContains()
+    {
+        $response = $this->getResponseJSON('me_saved_tracks_contains');
+        $uri = '/me/tracks/contains';
+        $options = ['query' => ['ids' => self::IDS]];
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $tracks = $client->getMeSavedTracksContains(self::IDS);
+        static::assertCount(2, $tracks);
+        static::assertTrue($tracks[0]);
+        static::assertFalse($tracks[1]);
+    }
+
+    /**
+     * @test
+     */
+    public function getMeTop()
+    {
+        $response = $this->getResponseJSON('me_top_artists');
+        $uri = '/me/top/'.MeTopType::ARTISTS;
+        $options = ['query' => ['limit' => 10, 'offset' => 1, 'time_range' => MeTopTimeRange::LONG]];
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $artists = $client->getMeTop(MeTopType::ARTISTS, 10, 1, MeTopTimeRange::LONG);
+        static::assertArrayHasKey('items', $artists);
     }
 
     /**

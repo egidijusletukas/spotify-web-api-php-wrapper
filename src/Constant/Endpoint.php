@@ -23,6 +23,12 @@ final class Endpoint
     const CATEGORY_PLAYLISTS = '/browse/categories/{id}/playlists';
     const FEATURED_PLAYLISTS = '/browse/featured-playlists';
     const ME = '/me';
+    const ME_ALBUMS = '/me/albums';
+    const ME_FOLLOWED_ARTISTS = '/me/following';
+    const ME_FOLLOWED_CONTAINS = '/me/following/contains';
+    const ME_SAVED_TRACKS = '/me/tracks';
+    const ME_SAVED_TRACKS_CONTAINS = '/me/tracks/contains';
+    const ME_TOP = '/me/top/{type}';
     const NEW_RELEASES = '/browse/new-releases';
     const USER_PLAYLIST = '/users/{user_id}/playlists/{playlist_id}';
 }
