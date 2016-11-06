@@ -194,28 +194,32 @@ class Client
     }
 
     /**
-     * @param string $id
+     * @param string $trackId
      *
      * @return array
      * @throws SpotifyAPIException
      */
-    public function getAudioFeaturesById(string $id)
+    public function getAudioFeaturesForTrack(string $trackId)
     {
-        $uri = $this->getUri(Endpoint::AUDIO_FEATURES_BY_ID, ['id' => $id]);
+        $uri = $this->getUri(Endpoint::AUDIO_FEATURES_FOR_TRACK, ['id' => $trackId]);
         $response = $this->request(Request::GET, $uri);
 
         return $this->decode($response);
     }
 
     /**
-     * @param array $ids
+     * @param array $trackIds
      *
      * @return array
      * @throws SpotifyAPIException
      */
-    public function getAudioFeaturesByIds(array $ids)
+    public function getAudioFeaturesForTracks(array $trackIds)
     {
-        $response = $this->request(Request::GET, Endpoint::AUDIO_FEATURES_BY_IDS, $this->getQuery(['ids' => $ids]));
+        $response = $this->request(
+            Request::GET,
+            Endpoint::AUDIO_FEATURES_FOR_TRACKS,
+            $this->getQuery(['ids' => $trackIds])
+        );
 
         return $this->decode($response);
     }

@@ -16,6 +16,8 @@ use SpotifyClient\Exceptions\SpotifyAPIException;
 class ClientTest extends \PHPUnit_Framework_TestCase
 {
     const ACCESS_TOKEN = 'xyz';
+    const ID = 'xyz';
+    const IDS = ['xyz', 'zyx'];
 
     /**
      * @test
@@ -41,9 +43,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $response = $this->getResponseJSON('album');
         $options = ['query' => ['market' => 'FR']];
-        $uri = '/albums/xyz';
+        $uri = '/albums/'.self::ID;
         $client = $this->getClientMock('GET', $uri, $options, $response);
-        $album = $client->getAlbum('xyz', 'FR');
+        $album = $client->getAlbum(self::ID, 'FR');
         static::assertArrayHasKey('album_type', $album);
     }
 
@@ -54,9 +56,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $response = $this->getResponseJSON('album_tracks');
         $options = ['query' => ['limit' => 10, 'offset' => 1, 'market' => 'FR']];
-        $uri = '/albums/xyz/tracks';
+        $uri = '/albums/'.self::ID.'/tracks';
         $client = $this->getClientMock('GET', $uri, $options, $response);
-        $tracks = $client->getAlbumTracks('xyz', 10, 1, 'FR');
+        $tracks = $client->getAlbumTracks(self::ID, 10, 1, 'FR');
         static::assertArrayHasKey('items', $tracks);
     }
 
@@ -66,10 +68,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function getAlbums()
     {
         $response = $this->getResponseJSON('albums');
-        $options = ['query' => ['ids' => ['xyz', 'zyx'], 'market' => 'FR']];
+        $options = ['query' => ['ids' => self::IDS, 'market' => 'FR']];
         $uri = '/albums';
         $client = $this->getClientMock('GET', $uri, $options, $response);
-        $albums = $client->getAlbums(['xyz', 'zyx'], 'FR');
+        $albums = $client->getAlbums(self::IDS, 'FR');
         static::assertArrayHasKey('albums', $albums);
     }
 
@@ -79,9 +81,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function getArtist()
     {
         $response = $this->getResponseJSON('artist');
-        $uri = '/artists/xyz';
+        $uri = '/artists/'.self::ID;
         $client = $this->getClientMock('GET', $uri, [], $response);
-        $artist = $client->getArtist('xyz');
+        $artist = $client->getArtist(self::ID);
         static::assertArrayHasKey('followers', $artist);
     }
 
@@ -91,7 +93,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function getArtistAlbums()
     {
         $response = $this->getResponseJSON('artist_albums');
-        $uri = '/artists/xyz/albums';
+        $uri = '/artists/'.self::ID.'/albums';
         $options = [
             'query' => [
                 'album_type' => 'album,single,appears_on,compilation',
@@ -101,8 +103,20 @@ class ClientTest extends \PHPUnit_Framework_TestCase
             ]
         ];
         $client = $this->getClientMock('GET', $uri, $options, $response);
-        $artistAlbums = $client->getArtistAlbums('xyz', AlbumType::$all, 'SE', 10, 1);
+        $artistAlbums = $client->getArtistAlbums(self::ID, AlbumType::$all, 'SE', 10, 1);
         static::assertArrayHasKey('items', $artistAlbums);
+    }
+
+    /**
+     * @test
+     */
+    public function getArtistRelated()
+    {
+        $response = $this->getResponseJSON('artist_related');
+        $uri = '/artists/'.self::ID.'/related-artists';
+        $client = $this->getClientMock('GET', $uri, [], $response);
+        $artists = $client->getArtistRelated(self::ID);
+        static::assertArrayHasKey('artists', $artists);
     }
 
     /**
@@ -111,10 +125,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function getArtistTopTracks()
     {
         $response = $this->getResponseJSON('artist_top_tracks');
-        $uri = '/artists/xyz/top-tracks';
+        $uri = '/artists/'.self::ID.'/top-tracks';
         $options = ['query' => ['country' => 'FR']];
         $client = $this->getClientMock('GET', $uri, $options, $response);
-        $artistTopTracks = $client->getArtistTopTracks('xyz', 'FR');
+        $artistTopTracks = $client->getArtistTopTracks(self::ID, 'FR');
         static::assertArrayHasKey('tracks', $artistTopTracks);
     }
 
@@ -125,10 +139,47 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $response = $this->getResponseJSON('artists');
         $uri = '/artists';
-        $options = ['query' => ['ids' => ['xyz', 'zyx']]];
+        $options = ['query' => ['ids' => self::IDS]];
         $client = $this->getClientMock('GET', $uri, $options, $response);
-        $artists = $client->getArtists(['xyz', 'zyx']);
+        $artists = $client->getArtists(self::IDS);
         static::assertArrayHasKey('artists', $artists);
+    }
+
+    /**
+     * @test
+     */
+    public function getAudioAnalysis()
+    {
+        $response = $this->getResponseJSON('audio_analysis');
+        $uri = '/audio-analysis/'.self::ID;
+        $client = $this->getClientMock('GET', $uri, [], $response);
+        $audioAnalysis = $client->getAudioAnalysis(self::ID);
+        static::assertArrayHasKey('bars', $audioAnalysis);
+    }
+
+    /**
+     * @test
+     */
+    public function getAudioFeaturesForTrack()
+    {
+        $response = $this->getResponseJSON('audio_features_for_track');
+        $uri = '/audio-features/xyz';
+        $client = $this->getClientMock('GET', $uri, [], $response);
+        $audioAnalysis = $client->getAudioFeaturesForTrack(self::ID);
+        static::assertArrayHasKey('danceability', $audioAnalysis);
+    }
+
+    /**
+     * @test
+     */
+    public function getAudioFeaturesForTracks()
+    {
+        $response = $this->getResponseJSON('audio_features_for_tracks');
+        $uri = '/audio-features';
+        $options = ['query' => ['ids' => self::IDS]];
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $audioAnalysis = $client->getAudioFeaturesForTracks(self::IDS);
+        static::assertArrayHasKey('audio_features', $audioAnalysis);
     }
 
     /**

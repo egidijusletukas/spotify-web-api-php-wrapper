@@ -16,8 +16,8 @@ final class Endpoint
     const ARTIST_RELATED = '/artists/{id}/related-artists';
     const ARTIST_TOP_TRACKS = '/artists/{id}/top-tracks';
     const AUDIO_ANALYSIS = '/audio-analysis/{id}';
-    const AUDIO_FEATURES_BY_ID = '/audio-features/{id}';
-    const AUDIO_FEATURES_BY_IDS = '/audio-features';
+    const AUDIO_FEATURES_FOR_TRACK = '/audio-features/{id}';
+    const AUDIO_FEATURES_FOR_TRACKS = '/audio-features';
     const CATEGORIES = '/browse/categories';
     const CATEGORY = '/browse/categories/{id}';
     const CATEGORY_PLAYLISTS = '/browse/categories/{id}/playlists';
