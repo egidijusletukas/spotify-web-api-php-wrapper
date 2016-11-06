@@ -60,15 +60,23 @@ class Client
     }
 
     /**
-     * @param string $albumId
+     * @param string   $albumId
+     * @param int|null $limit
+     * @param int|null $offset
+     * @param string   $market
      *
      * @return array
      * @throws SpotifyAPIException
      */
-    public function getAlbumTracks(string $albumId)
+    public function getAlbumTracks(string $albumId, int $limit = null, int $offset = null, string $market = '')
     {
         $uri = $this->getUri(Endpoint::ALBUM_TRACKS, ['id' => $albumId]);
-        $response = $this->request(Request::GET, $uri);
+        $options = [
+            'limit' => $limit,
+            'offset' => $offset,
+            'market' => $market,
+        ];
+        $response = $this->request(Request::GET, $uri, $this->getQuery($options));
 
         return $this->decode($response);
     }
@@ -106,15 +114,25 @@ class Client
     }
 
     /**
-     * @param string $artistId
+     * @param string   $artistId
+     * @param array    $albumTypes
+     * @param string   $country
+     * @param int|null $limit
+     * @param int|null $offset
      *
      * @return array
      * @throws SpotifyAPIException
      */
-    public function getArtistAlbums(string $artistId)
+    public function getArtistAlbums(string $artistId, array $albumTypes = [], string $country = '', int $limit = null, int $offset = null)
     {
         $uri = $this->getUri(Endpoint::ARTIST_ALBUMS, ['id' => $artistId]);
-        $response = $this->request(Request::GET, $uri);
+        $options = [
+            'album_type' => implode(',', $albumTypes),
+            'market' => $country,
+            'limit' => $limit,
+            'offset' => $offset,
+        ];
+        $response = $this->request(Request::GET, $uri, $this->getQuery($options));
 
         return $this->decode($response);
     }
@@ -135,14 +153,15 @@ class Client
 
     /**
      * @param string $artistId
+     * @param string $country
      *
      * @return array
      * @throws SpotifyAPIException
      */
-    public function getArtistTopTracks(string $artistId)
+    public function getArtistTopTracks(string $artistId, string $country = '')
     {
         $uri = $this->getUri(Endpoint::ARTIST_TOP_TRACKS, ['id' => $artistId]);
-        $response = $this->request(Request::GET, $uri);
+        $response = $this->request(Request::GET, $uri, $this->getQuery(['country' => $country]));
 
         return $this->decode($response);
     }

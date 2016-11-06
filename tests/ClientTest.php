@@ -5,6 +5,7 @@ namespace tests\SpotifyClient;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
 use SpotifyClient\Client;
+use SpotifyClient\Constant\AlbumType;
 use SpotifyClient\Constant\Endpoint;
 use SpotifyClient\DataType\AccessTokens;
 use SpotifyClient\Exceptions\SpotifyAPIException;
@@ -49,6 +50,19 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function getAlbumTracks()
+    {
+        $response = $this->getResponseJSON('album_tracks');
+        $options = ['query' => ['limit' => 10, 'offset' => 1, 'market' => 'FR']];
+        $uri = '/albums/xyz/tracks';
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $tracks = $client->getAlbumTracks('xyz', 10, 1, 'FR');
+        static::assertArrayHasKey('items', $tracks);
+    }
+
+    /**
+     * @test
+     */
     public function getAlbums()
     {
         $response = $this->getResponseJSON('albums');
@@ -57,6 +71,64 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $client = $this->getClientMock('GET', $uri, $options, $response);
         $albums = $client->getAlbums(['xyz', 'zyx'], 'FR');
         static::assertArrayHasKey('albums', $albums);
+    }
+
+    /**
+     * @test
+     */
+    public function getArtist()
+    {
+        $response = $this->getResponseJSON('artist');
+        $uri = '/artists/xyz';
+        $client = $this->getClientMock('GET', $uri, [], $response);
+        $artist = $client->getArtist('xyz');
+        static::assertArrayHasKey('followers', $artist);
+    }
+
+    /**
+     * @test
+     */
+    public function getArtistAlbums()
+    {
+        $response = $this->getResponseJSON('artist_albums');
+        $uri = '/artists/xyz/albums';
+        $options = [
+            'query' => [
+                'album_type' => 'album,single,appears_on,compilation',
+                'market' => 'SE',
+                'limit' => 10,
+                'offset' => 1,
+            ]
+        ];
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $artistAlbums = $client->getArtistAlbums('xyz', AlbumType::$all, 'SE', 10, 1);
+        static::assertArrayHasKey('items', $artistAlbums);
+    }
+
+    /**
+     * @test
+     */
+    public function getArtistTopTracks()
+    {
+        $response = $this->getResponseJSON('artist_top_tracks');
+        $uri = '/artists/xyz/top-tracks';
+        $options = ['query' => ['country' => 'FR']];
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $artistTopTracks = $client->getArtistTopTracks('xyz', 'FR');
+        static::assertArrayHasKey('tracks', $artistTopTracks);
+    }
+
+    /**
+     * @test
+     */
+    public function getArtists()
+    {
+        $response = $this->getResponseJSON('artists');
+        $uri = '/artists';
+        $options = ['query' => ['ids' => ['xyz', 'zyx']]];
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $artists = $client->getArtists(['xyz', 'zyx']);
+        static::assertArrayHasKey('artists', $artists);
     }
 
     /**
