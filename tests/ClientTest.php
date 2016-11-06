@@ -16,8 +16,11 @@ use SpotifyClient\Exceptions\SpotifyAPIException;
 class ClientTest extends \PHPUnit_Framework_TestCase
 {
     const ACCESS_TOKEN = 'xyz';
+    const COUNTRY = 'LT';
     const ID = 'xyz';
     const IDS = ['xyz', 'zyx'];
+    const LOCALE = 'es_MX';
+    const MARKET = 'FR';
 
     /**
      * @test
@@ -42,10 +45,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function getAlbum()
     {
         $response = $this->getResponseJSON('album');
-        $options = ['query' => ['market' => 'FR']];
+        $options = ['query' => ['market' => self::MARKET]];
         $uri = '/albums/'.self::ID;
         $client = $this->getClientMock('GET', $uri, $options, $response);
-        $album = $client->getAlbum(self::ID, 'FR');
+        $album = $client->getAlbum(self::ID, self::MARKET);
         static::assertArrayHasKey('album_type', $album);
     }
 
@@ -55,10 +58,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function getAlbumTracks()
     {
         $response = $this->getResponseJSON('album_tracks');
-        $options = ['query' => ['limit' => 10, 'offset' => 1, 'market' => 'FR']];
+        $options = ['query' => ['limit' => 10, 'offset' => 1, 'market' => self::MARKET]];
         $uri = '/albums/'.self::ID.'/tracks';
         $client = $this->getClientMock('GET', $uri, $options, $response);
-        $tracks = $client->getAlbumTracks(self::ID, 10, 1, 'FR');
+        $tracks = $client->getAlbumTracks(self::ID, 10, 1, self::MARKET);
         static::assertArrayHasKey('items', $tracks);
     }
 
@@ -68,10 +71,10 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function getAlbums()
     {
         $response = $this->getResponseJSON('albums');
-        $options = ['query' => ['ids' => self::IDS, 'market' => 'FR']];
+        $options = ['query' => ['ids' => self::IDS, 'market' => self::MARKET]];
         $uri = '/albums';
         $client = $this->getClientMock('GET', $uri, $options, $response);
-        $albums = $client->getAlbums(self::IDS, 'FR');
+        $albums = $client->getAlbums(self::IDS, self::MARKET);
         static::assertArrayHasKey('albums', $albums);
     }
 
@@ -97,13 +100,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $options = [
             'query' => [
                 'album_type' => 'album,single,appears_on,compilation',
-                'market' => 'SE',
+                'market' => self::COUNTRY,
                 'limit' => 10,
                 'offset' => 1,
             ]
         ];
         $client = $this->getClientMock('GET', $uri, $options, $response);
-        $artistAlbums = $client->getArtistAlbums(self::ID, AlbumType::$all, 'SE', 10, 1);
+        $artistAlbums = $client->getArtistAlbums(self::ID, AlbumType::$all, self::COUNTRY, 10, 1);
         static::assertArrayHasKey('items', $artistAlbums);
     }
 
@@ -126,9 +129,9 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $response = $this->getResponseJSON('artist_top_tracks');
         $uri = '/artists/'.self::ID.'/top-tracks';
-        $options = ['query' => ['country' => 'FR']];
+        $options = ['query' => ['country' => self::COUNTRY]];
         $client = $this->getClientMock('GET', $uri, $options, $response);
-        $artistTopTracks = $client->getArtistTopTracks(self::ID, 'FR');
+        $artistTopTracks = $client->getArtistTopTracks(self::ID, self::COUNTRY);
         static::assertArrayHasKey('tracks', $artistTopTracks);
     }
 
@@ -165,8 +168,8 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $response = $this->getResponseJSON('audio_features_for_track');
         $uri = '/audio-features/xyz';
         $client = $this->getClientMock('GET', $uri, [], $response);
-        $audioAnalysis = $client->getAudioFeaturesForTrack(self::ID);
-        static::assertArrayHasKey('danceability', $audioAnalysis);
+        $audioFeatures = $client->getAudioFeaturesForTrack(self::ID);
+        static::assertArrayHasKey('danceability', $audioFeatures);
     }
 
     /**
@@ -178,8 +181,95 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $uri = '/audio-features';
         $options = ['query' => ['ids' => self::IDS]];
         $client = $this->getClientMock('GET', $uri, $options, $response);
-        $audioAnalysis = $client->getAudioFeaturesForTracks(self::IDS);
-        static::assertArrayHasKey('audio_features', $audioAnalysis);
+        $audioFeatures = $client->getAudioFeaturesForTracks(self::IDS);
+        static::assertArrayHasKey('audio_features', $audioFeatures);
+    }
+
+    /**
+     * @test
+     */
+    public function getCategories()
+    {
+        $response = $this->getResponseJSON('categories');
+        $options = [
+            'query' => [
+                'country' => self::COUNTRY,
+                'locale' => self::LOCALE,
+                'limit' => 10,
+                'offset' => 1
+            ]
+        ];
+        $uri = '/browse/categories';
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $categories = $client->getCategories(self::COUNTRY, self::LOCALE, 10, 1);
+        static::assertArrayHasKey('categories', $categories);
+    }
+
+    /**
+     * @test
+     */
+    public function getCategoryPlaylists()
+    {
+        $response = $this->getResponseJSON('category_playlists');
+        $options = ['query' => ['country' => self::COUNTRY, 'limit' => 10, 'offset' => 1]];
+        $uri = '/browse/categories/'.self::ID.'/playlists';
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $category = $client->getCategoryPlaylists(self::ID, self::COUNTRY, 10, 1);
+        static::assertArrayHasKey('playlists', $category);
+    }
+
+    /**
+     * @test
+     */
+    public function getFeaturedPlaylists()
+    {
+        $response = $this->getResponseJSON('featured_playlist');
+        $now = new \DateTime();
+        $options = [
+            'query' => [
+                'locale' => self::LOCALE,
+                'country' => self::COUNTRY,
+                'timestamp' => $now->setTimezone(new \DateTimeZone('UTC'))->format(\DateTime::ISO8601),
+                'limit' => 10,
+                'offset' => 1
+            ]
+        ];
+        $uri = '/browse/featured-playlists';
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $playlists = $client->getFeaturedPlaylists(self::LOCALE, self::COUNTRY, $now, 10, 1);
+        static::assertArrayHasKey('message', $playlists);
+        static::assertArrayHasKey('playlists', $playlists);
+    }
+
+    /**
+     * @test
+     */
+    public function getMe()
+    {
+        $response = $this->getResponseJSON('me');
+        $uri = '/me';
+        $client = $this->getClientMock('GET', $uri, [], $response);
+        $me = $client->getMe();
+        static::assertArrayHasKey('birthdate', $me);
+    }
+
+    /**
+     * @test
+     */
+    public function getNewReleases()
+    {
+        $response = $this->getResponseJSON('new_releases');
+        $options = [
+            'query' => [
+                'country' => self::COUNTRY,
+                'limit' => 10,
+                'offset' => 1
+            ]
+        ];
+        $uri = '/browse/new-releases';
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $albums = $client->getNewReleases(self::COUNTRY, 10, 1);
+        static::assertArrayHasKey('albums', $albums);
     }
 
     /**

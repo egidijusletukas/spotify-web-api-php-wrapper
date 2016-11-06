@@ -225,51 +225,75 @@ class Client
     }
 
     /**
+     * @param string   $country
+     * @param string   $locale
+     * @param int|null $limit
+     * @param int|null $offset
+     *
      * @return array
      * @throws SpotifyAPIException
      */
-    public function getCategories()
+    public function getCategories(string $country = '', string $locale = '', int $limit = null, int $offset = null)
     {
-        $response = $this->request(Request::GET, Endpoint::CATEGORIES);
+        $options = ['country' => $country, 'locale' => $locale, 'limit' => $limit, 'offset' => $offset];
+        $response = $this->request(Request::GET, Endpoint::CATEGORIES, $this->getQuery($options));
 
         return $this->decode($response);
     }
 
     /**
      * @param string $id
+     * @param string $country
+     * @param string $locale
      *
      * @return array
      * @throws SpotifyAPIException
      */
-    public function getCategory(string $id)
+    public function getCategory(string $id, string $country = '', string $locale = '')
     {
         $uri = $this->getUri(Endpoint::CATEGORY, ['id' => $id]);
-        $response = $this->request(Request::GET, $uri);
+        $options = ['country' => $country, 'locale' => $locale];
+        $response = $this->request(Request::GET, $uri, $this->getQuery($options));
 
         return $this->decode($response);
     }
 
     /**
-     * @param string $id
+     * @param string   $id
+     * @param string   $country
+     * @param int|null $limit
+     * @param int|null $offset
      *
      * @return array
      * @throws SpotifyAPIException
      */
-    public function getCategoryPlaylists(string $id)
+    public function getCategoryPlaylists(string $id, string $country = '', int $limit = null, int $offset = null)
     {
         $uri = $this->getUri(Endpoint::CATEGORY_PLAYLISTS, ['id' => $id]);
-        $response = $this->request(Request::GET, $uri);
+        $options = ['country' => $country, 'limit' => $limit, 'offset' => $offset];
+        $response = $this->request(Request::GET, $uri, $this->getQuery($options));
 
         return $this->decode($response);
     }
 
     /**
+     * @param string         $locale
+     * @param string         $country
+     * @param \DateTime|null $dateTime
+     * @param int|null       $limit
+     * @param int|null       $offset
+     *
      * @return array
      * @throws SpotifyAPIException
      */
-    public function getFeaturedPlaylists()
+    public function getFeaturedPlaylists(string $locale = '', string $country = '', \DateTime $dateTime = null, int $limit = null, int $offset = null)
     {
-        $response = $this->request(Request::GET, Endpoint::FEATURED_PLAYLISTS);
+        $options = ['locale' => $locale, 'country' => $country, 'limit' => $limit, 'offset' => $offset];
+        if (null !== $dateTime) {
+            $dateTime->setTimezone(new \DateTimeZone('UTC'));
+            $options['timestamp'] = $dateTime->format(\DateTime::ISO8601);
+        }
+        $response = $this->request(Request::GET, Endpoint::FEATURED_PLAYLISTS, $this->getQuery($options));
 
         return $this->decode($response);
     }
