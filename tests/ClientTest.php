@@ -10,6 +10,7 @@ use SpotifyClient\Constant\Endpoint;
 use SpotifyClient\Constant\MeFollowedContainsType;
 use SpotifyClient\Constant\MeTopTimeRange;
 use SpotifyClient\Constant\MeTopType;
+use SpotifyClient\Constant\SearchType;
 use SpotifyClient\DataType\AccessTokens;
 use SpotifyClient\Exceptions\SpotifyAPIException;
 
@@ -20,6 +21,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 {
     const ACCESS_TOKEN = 'xyz';
     const COUNTRY = 'LT';
+    const GENRES = ['alt_rock', 'bluegrass', 'blues'];
     const ID = 'xyz';
     const IDS = ['xyz', 'zyx'];
     const LOCALE = 'es_MX';
@@ -74,7 +76,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     public function getAlbums()
     {
         $response = $this->getResponseJSON('albums');
-        $options = ['query' => ['ids' => self::IDS, 'market' => self::MARKET]];
+        $options = ['query' => ['ids' => implode(',', self::IDS), 'market' => self::MARKET]];
         $uri = '/albums';
         $client = $this->getClientMock('GET', $uri, $options, $response);
         $albums = $client->getAlbums(self::IDS, self::MARKET);
@@ -145,7 +147,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $response = $this->getResponseJSON('artists');
         $uri = '/artists';
-        $options = ['query' => ['ids' => self::IDS]];
+        $options = ['query' => ['ids' => implode(',', self::IDS)]];
         $client = $this->getClientMock('GET', $uri, $options, $response);
         $artists = $client->getArtists(self::IDS);
         static::assertArrayHasKey('artists', $artists);
@@ -182,7 +184,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $response = $this->getResponseJSON('audio_features_for_tracks');
         $uri = '/audio-features';
-        $options = ['query' => ['ids' => self::IDS]];
+        $options = ['query' => ['ids' => implode(',', self::IDS)]];
         $client = $this->getClientMock('GET', $uri, $options, $response);
         $audioFeatures = $client->getAudioFeaturesForTracks(self::IDS);
         static::assertArrayHasKey('audio_features', $audioFeatures);
@@ -329,7 +331,7 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     {
         $response = $this->getResponseJSON('me_saved_tracks_contains');
         $uri = '/me/tracks/contains';
-        $options = ['query' => ['ids' => self::IDS]];
+        $options = ['query' => ['ids' => implode(',', self::IDS)]];
         $client = $this->getClientMock('GET', $uri, $options, $response);
         $tracks = $client->getMeSavedTracksContains(self::IDS);
         static::assertCount(2, $tracks);
@@ -392,6 +394,90 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function getRecommendations()
+    {
+        $response = $this->getResponseJSON('recommendations');
+        $options = [
+            'query' => [
+                'limit' => 10,
+                'market' => self::MARKET,
+                'max_instrumentalness' => 0.35,
+                'max_liveness' => 0.5,
+                'min_tempo' => 140,
+                'min_mode' => 1,
+                'seed_artists' => implode(',', self::IDS),
+                'seed_genres' => implode(',', self::GENRES),
+                'seed_tracks' => implode(',', self::IDS),
+                'target_energy' => 0.6,
+                'target_danceability' => 0.8
+            ]
+        ];
+        $uri = '/recommendations';
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $recommendations = $client->getRecommendations(
+            10,
+            self::MARKET,
+            ['instrumentalness' => 0.35, 'liveness' => 0.5],
+            ['tempo' => 140, 'mode' => 1],
+            self::IDS,
+            self::GENRES,
+            self::IDS,
+            ['energy' => 0.6, 'danceability' => 0.8]
+        );
+        static::assertArrayHasKey('seeds', $recommendations);
+        static::assertArrayHasKey('tracks', $recommendations);
+    }
+
+    /**
+     * @test
+     */
+    public function getSearchResult()
+    {
+        $response = $this->getResponseJSON('search');
+        $options = [
+            'query' => [
+                'q' => implode('+', self::IDS),
+                'type' => 'album,artist,playlist,track',
+                'market' => self::MARKET,
+                'limit' => 10,
+                'offset' => 1
+            ]
+        ];
+        $uri = '/search';
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $result = $client->getSearchResult(self::IDS, SearchType::$all, self::MARKET, 10, 1);
+        static::assertArrayHasKey('artists', $result);
+    }
+
+    /**
+     * @test
+     */
+    public function getTrack()
+    {
+        $response = $this->getResponseJSON('track');
+        $options = ['query' => ['market' => self::MARKET]];
+        $uri = '/tracks/'.self::ID;
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $track = $client->getTrack(self::ID, self::MARKET);
+        static::assertArrayHasKey('album', $track);
+    }
+
+    /**
+     * @test
+     */
+    public function getTracks()
+    {
+        $response = $this->getResponseJSON('tracks');
+        $options = ['query' => ['ids' => implode(',', self::IDS), 'market' => self::MARKET]];
+        $uri = '/tracks';
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $tracks = $client->getTracks(self::IDS, self::MARKET);
+        static::assertArrayHasKey('tracks', $tracks);
+    }
+
+    /**
+     * @test
+     */
     public function getUri()
     {
         /** @var \PHPUnit_Framework_MockObject_MockObject|Client $clientAPI */
@@ -410,6 +496,51 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function getUserPlaylistTracks()
+    {
+        $response = $this->getResponseJSON('user_playlist_tracks');
+        $uri = '/users/'.self::ID.'/playlists/zyx/tracks';
+        $options = [
+            'query' => [
+                'fields' => 'total,limit',
+                'limit' => 10,
+                'offset' => 1,
+                'market' => self::MARKET
+            ]
+        ];
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $tracks = $client->getUserPlaylistTracks(self::ID, 'zyx', 'total,limit', 10, 1, self::MARKET);
+        static::assertArrayHasKey('items', $tracks);
+    }
+
+    /**
+     * @test
+     */
+    public function getUserPlaylists()
+    {
+        $response = $this->getResponseJSON('user_playlists');
+        $uri = '/users/'.self::ID.'/playlists';
+        $options = ['query' => ['limit' => 10, 'offset' => 1]];
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $playlists = $client->getUserPlaylists(self::ID, 10, 1);
+        static::assertArrayHasKey('items', $playlists);
+    }
+
+    /**
+     * @test
+     */
+    public function getUserProfile()
+    {
+        $response = $this->getResponseJSON('user_profile');
+        $uri = '/users/'.self::ID;
+        $client = $this->getClientMock('GET', $uri, [], $response);
+        $profile = $client->getUserProfile(self::ID);
+        static::assertArrayHasKey('display_name', $profile);
+    }
+
+    /**
+     * @test
+     */
     public function handledRequestException()
     {
         $clientGuzzle = $this->getGuzzleClientMock();
@@ -417,6 +548,19 @@ class ClientTest extends \PHPUnit_Framework_TestCase
         $clientAPI = new Client($this->getAccessTokens(), $clientGuzzle);
         $this->expectException(SpotifyAPIException::class);
         $clientAPI->request('GET');
+    }
+
+    /**
+     * @test
+     */
+    public function isUserFollowingPlaylist()
+    {
+        $response = $this->getResponseJSON('user_following_playlist');
+        $uri = '/users/'.self::ID.'/playlists/zyx/followers/contains';
+        $options = ['query' => ['ids' => implode(',', self::IDS)]];
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $result = $client->isUserFollowingPlaylist(self::ID, 'zyx', self::IDS);
+        static::assertCount(2, $result);
     }
 
     /**

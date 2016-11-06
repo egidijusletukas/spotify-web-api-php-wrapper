@@ -5,7 +5,7 @@ namespace SpotifyClient\Constant;
 /**
  * Class AlbumType.
  */
-class AlbumType
+final class AlbumType
 {
     const ALBUM = 'album';
     const APPEARS_ON = 'appears_on';

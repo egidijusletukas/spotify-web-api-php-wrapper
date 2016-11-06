@@ -93,7 +93,7 @@ class Client
         $response = $this->request(
             Request::GET,
             Endpoint::ALBUMS,
-            $this->getQuery(['ids' => $ids, 'market' => $market])
+            $this->getQuery(['ids' => implode(',', $ids), 'market' => $market])
         );
 
         return $this->decode($response);
@@ -174,7 +174,11 @@ class Client
      */
     public function getArtists(array $artistIds)
     {
-        $response = $this->request(Request::GET, Endpoint::ARTISTS, $this->getQuery(['ids' => $artistIds]));
+        $response = $this->request(
+            Request::GET,
+            Endpoint::ARTISTS,
+            $this->getQuery(['ids' => implode(',', $artistIds)])
+        );
 
         return $this->decode($response);
     }
@@ -218,7 +222,7 @@ class Client
         $response = $this->request(
             Request::GET,
             Endpoint::AUDIO_FEATURES_FOR_TRACKS,
-            $this->getQuery(['ids' => $trackIds])
+            $this->getQuery(['ids' => implode(',', $trackIds)])
         );
 
         return $this->decode($response);
@@ -380,7 +384,7 @@ class Client
      */
     public function getMeSavedTracksContains(array $ids) : array
     {
-        $options = ['ids' => $ids];
+        $options = ['ids' => implode(',', $ids)];
         $response = $this->request(Request::GET, Endpoint::ME_SAVED_TRACKS_CONTAINS, $this->getQuery($options));
 
         return $this->decode($response);
@@ -415,8 +419,104 @@ class Client
     public function getNewReleases(string $country = '', int $limit = null, int $offset = null) : array
     {
         $options = ['country' => $country, 'limit' => $limit, 'offset' => $offset];
-        $options = $this->getQuery($options);
-        $response = $this->request(Request::GET, Endpoint::NEW_RELEASES, $options);
+        $response = $this->request(Request::GET, Endpoint::NEW_RELEASES, $this->getQuery($options));
+
+        return $this->decode($response);
+    }
+
+    /**
+     * @param int|null $limit
+     * @param string   $market
+     * @param array    $max
+     * @param array    $min
+     * @param array    $seedArtists
+     * @param array    $seedGenres
+     * @param array    $seedTracks
+     * @param array    $target
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getRecommendations(int $limit = null, string $market = '', array $max = [], array $min = [], array $seedArtists = [], array $seedGenres = [], array $seedTracks = [], array $target = []) : array
+    {
+        $options = [
+            'limit' => $limit,
+            'market' => $market
+        ];
+        foreach ($max as $key => $item) {
+            $options['max_'.$key] = $item;
+        }
+        foreach ($min as $key => $item) {
+            $options['min_'.$key] = $item;
+        }
+        if ($seedArtists) {
+            $options['seed_artists'] = implode(',', $seedArtists);
+        }
+        if ($seedGenres) {
+            $options['seed_genres'] = implode(',', $seedGenres);
+        }
+        if ($seedTracks) {
+            $options['seed_tracks'] = implode(',', $seedTracks);
+        }
+        foreach ($target as $key => $item) {
+            $options['target_'.$key] = $item;
+        }
+        $response = $this->request(Request::GET, Endpoint::RECOMMENDATIONS, $this->getQuery($options));
+
+        return $this->decode($response);
+    }
+
+    /**
+     * @param array    $query
+     * @param array    $types
+     * @param string   $market
+     * @param int|null $limit
+     * @param int|null $offset
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getSearchResult(array $query, array $types, string $market = '', int $limit = null, int $offset = null) : array
+    {
+        $options = [
+            'q' => implode('+', $query),
+            'type' => implode(',', $types),
+            'market' => $market,
+            'limit' => $limit,
+            'offset' => $offset
+        ];
+        $response = $this->request(Request::GET, Endpoint::SEARCH, $this->getQuery($options));
+
+        return $this->decode($response);
+    }
+
+    /**
+     * @param string $id
+     * @param string $market
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getTrack(string $id, string $market = '') : array
+    {
+        $uri = $this->getUri(Endpoint::TRACK, ['id' => $id]);
+        $options = ['market' => $market];
+        $response = $this->request(Request::GET, $uri, $this->getQuery($options));
+
+        return $this->decode($response);
+    }
+
+    /**
+     * @param array  $ids
+     * @param string $market
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getTracks(array $ids, string $market = '') : array
+    {
+        $options = ['ids' => implode(',', $ids), 'market' => $market];
+        $response = $this->request(Request::GET, Endpoint::TRACKS, $this->getQuery($options));
 
         return $this->decode($response);
     }
@@ -432,6 +532,79 @@ class Client
     {
         $uri = $this->getUri(Endpoint::USER_PLAYLIST, ['user_id' => $userId, 'playlist_id' => $playlistId]);
         $response = $this->request(Request::GET, $uri);
+
+        return $this->decode($response);
+    }
+
+    /**
+     * @param string   $userId
+     * @param string   $playlistId
+     * @param string   $fields
+     * @param int|null $limit
+     * @param int|null $offset
+     * @param string   $market
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getUserPlaylistTracks(string $userId, string $playlistId, string $fields = '', int $limit = null, int $offset = null, string $market = '') : array
+    {
+        $uri = $this->getUri(Endpoint::USER_PLAYLIST_TRACKS, ['user_id' => $userId, 'playlist_id' => $playlistId]);
+        $options = [
+            'fields' => $fields,
+            'limit' => $limit,
+            'offset' => $offset,
+            'market' => $market
+        ];
+        $response = $this->request(Request::GET, $uri, $this->getQuery($options));
+
+        return $this->decode($response);
+    }
+
+    /**
+     * @param string   $id
+     * @param int|null $limit
+     * @param int|null $offset
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getUserPlaylists(string $id, int $limit = null, int $offset = null) : array
+    {
+        $uri = $this->getUri(Endpoint::USER_PLAYLISTS, ['id' => $id]);
+        $options = ['limit' => $limit, 'offset' => $offset];
+        $response = $this->request(Request::GET, $uri, $this->getQuery($options));
+
+        return $this->decode($response);
+    }
+
+    /**
+     * @param string $id
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function getUserProfile(string $id) : array
+    {
+        $uri = $this->getUri(Endpoint::USER_PROFILE, ['id' => $id]);
+        $response = $this->request(Request::GET, $uri);
+
+        return $this->decode($response);
+    }
+
+    /**
+     * @param string $ownerId
+     * @param string $playlistId
+     * @param array  $ids
+     *
+     * @return array
+     * @throws SpotifyAPIException
+     */
+    public function isUserFollowingPlaylist(string $ownerId, string $playlistId, array $ids) : array
+    {
+        $uri = $this->getUri(Endpoint::USER_FOLLOWING_PLAYLIST, ['owner_id' => $ownerId, 'playlist_id' => $playlistId]);
+        $options = ['ids' => implode(',', $ids)];
+        $response = $this->request(Request::GET, $uri, $this->getQuery($options));
 
         return $this->decode($response);
     }

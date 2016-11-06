@@ -30,5 +30,13 @@ final class Endpoint
     const ME_SAVED_TRACKS_CONTAINS = '/me/tracks/contains';
     const ME_TOP = '/me/top/{type}';
     const NEW_RELEASES = '/browse/new-releases';
+    const RECOMMENDATIONS = '/recommendations';
+    const SEARCH = '/search';
+    const TRACK = '/tracks/{id}';
+    const TRACKS = '/tracks';
+    const USER_FOLLOWING_PLAYLIST = '/users/{owner_id}/playlists/{playlist_id}/followers/contains';
     const USER_PLAYLIST = '/users/{user_id}/playlists/{playlist_id}';
+    const USER_PLAYLISTS = '/users/{id}/playlists';
+    const USER_PLAYLIST_TRACKS = '/users/{user_id}/playlists/{playlist_id}/tracks';
+    const USER_PROFILE = '/users/{id}';
 }
