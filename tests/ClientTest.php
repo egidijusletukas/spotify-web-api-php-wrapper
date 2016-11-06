@@ -208,14 +208,27 @@ class ClientTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function getCategory()
+    {
+        $response = $this->getResponseJSON('category');
+        $options = ['query' => ['country' => self::COUNTRY, 'locale' => self::LOCALE]];
+        $uri = '/browse/categories/'.self::ID;
+        $client = $this->getClientMock('GET', $uri, $options, $response);
+        $category = $client->getCategory(self::ID, self::COUNTRY, self::LOCALE);
+        static::assertArrayHasKey('name', $category);
+    }
+
+    /**
+     * @test
+     */
     public function getCategoryPlaylists()
     {
         $response = $this->getResponseJSON('category_playlists');
         $options = ['query' => ['country' => self::COUNTRY, 'limit' => 10, 'offset' => 1]];
         $uri = '/browse/categories/'.self::ID.'/playlists';
         $client = $this->getClientMock('GET', $uri, $options, $response);
-        $category = $client->getCategoryPlaylists(self::ID, self::COUNTRY, 10, 1);
-        static::assertArrayHasKey('playlists', $category);
+        $playlists = $client->getCategoryPlaylists(self::ID, self::COUNTRY, 10, 1);
+        static::assertArrayHasKey('playlists', $playlists);
     }
 
     /**
