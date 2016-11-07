@@ -98,7 +98,7 @@
             "uri" : "spotify:user:spotify_espa%C3%B1a"
         },
         "is_local" : false
-    } ],
+    }],
     "limit" : 100,
     "next" : null,
     "offset" : 0,
