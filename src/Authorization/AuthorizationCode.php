@@ -141,13 +141,12 @@ class AuthorizationCode
      */
     public function refreshAccessTokens(AccessTokens $accessTokens, string $clientId, string $clientSecret) : AccessTokens
     {
-        $authorization = base64_encode($clientId.':'.$clientSecret);
         $options = [
             'form_params' => [
                 'grant_type' => 'refresh_token',
                 'refresh_token' => $accessTokens->getRefreshToken(),
             ],
-            RequestOptions::HEADERS => ['Authorization' => $authorization],
+            RequestOptions::HEADERS => ['Authorization' => 'Basic '.base64_encode($clientId.':'.$clientSecret)],
         ];
 
         try {

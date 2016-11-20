@@ -134,7 +134,7 @@ class AuthorizationCodeTest extends \PHPUnit_Framework_TestCase
                 'grant_type' => 'refresh_token',
                 'refresh_token' => 'xyz refresh token',
             ],
-            RequestOptions::HEADERS => ['Authorization' => base64_encode('id_xyz:secret_xyz')],
+            RequestOptions::HEADERS => ['Authorization' => 'Basic '.base64_encode('id_xyz:secret_xyz')],
         ];
         $response = new Response(200, [], json_encode($body));
         $client
