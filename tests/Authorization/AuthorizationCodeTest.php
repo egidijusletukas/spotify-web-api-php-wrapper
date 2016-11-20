@@ -4,7 +4,10 @@ namespace tests\SpotifyClient\Authorization;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\RequestOptions;
 use SpotifyClient\Authorization\AuthorizationCode;
+use SpotifyClient\Constant\Request;
+use SpotifyClient\DataType\AccessTokens;
 use SpotifyClient\Exceptions\SpotifyAccountsException;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 
@@ -20,7 +23,7 @@ class AuthorizationCodeTest extends \PHPUnit_Framework_TestCase
     private static $accessTokensConfig = [
         'client_id' => 'xyz',
         'client_secret' => 'zyx',
-        'redirect_uri' => 'yxz'
+        'redirect_uri' => 'yxz',
     ];
     /**
      * @var array
@@ -112,6 +115,43 @@ class AuthorizationCodeTest extends \PHPUnit_Framework_TestCase
         $authorization = new AuthorizationCode($client);
         $this->expectException(SpotifyAccountsException::class);
         $authorization->getAccessTokens(self::$accessTokensConfig, '');
+    }
+
+    /**
+     * @test
+     */
+    public function refreshAccessTokens()
+    {
+        $client = $this->getClientMock();
+        $body = [
+            'access_token' => 'access token xyz',
+            'token_type' => 'token type xyz',
+            'scope' => 'scope xyz',
+            'expires_in' => 3600,
+        ];
+        $options = [
+            'form_params' => [
+                'grant_type' => 'refresh_token',
+                'refresh_token' => 'xyz refresh token',
+            ],
+            RequestOptions::HEADERS => ['Authorization' => base64_encode('id_xyz:secret_xyz')],
+        ];
+        $response = new Response(200, [], json_encode($body));
+        $client
+            ->expects(static::once())
+            ->method('request')
+            ->with(Request::POST, AuthorizationCode::URL.'/api/token', $options)
+            ->willReturn($response);
+        $authorization = new AuthorizationCode($client);
+
+        $accessTokens = (new AccessTokens())->setRefreshToken('xyz refresh token');
+        $accessTokens = $authorization->refreshAccessTokens($accessTokens, 'id_xyz', 'secret_xyz');
+
+        static::assertEquals($body['access_token'], $accessTokens->getAccessToken());
+        static::assertEquals($body['token_type'], $accessTokens->getTokenType());
+        static::assertEquals($body['scope'], $accessTokens->getScope());
+        static::assertSame($body['expires_in'], $accessTokens->getExpiresIn());
+        static::assertEquals('xyz refresh token', $accessTokens->getRefreshToken());
     }
 
     /**

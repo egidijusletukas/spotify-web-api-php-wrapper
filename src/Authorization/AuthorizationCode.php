@@ -68,15 +68,8 @@ class AuthorizationCode
      */
     private static function getOptionsAuthTokensRefresh() : OptionsResolver
     {
-        $required = [
-            'access_token',
-            'token_type',
-            'scope',
-            'expires_in',
-        ];
-
         return (new OptionsResolver())
-            ->setRequired($required);
+            ->setRequired(['access_token', 'token_type', 'scope', 'expires_in']);
     }
 
     /**
@@ -154,7 +147,7 @@ class AuthorizationCode
                 'grant_type' => 'refresh_token',
                 'refresh_token' => $accessTokens->getRefreshToken(),
             ],
-            RequestOptions::HEADERS => ['Authorization' => $authorization]
+            RequestOptions::HEADERS => ['Authorization' => $authorization],
         ];
 
         try {
