@@ -1,17 +1,17 @@
 <?php
 
-namespace tests\SpotifyClient;
+namespace tests\SpotifyClient\Authorization;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
-use SpotifyClient\Authorization;
+use SpotifyClient\Authorization\AuthorizationCode;
 use SpotifyClient\Exceptions\SpotifyAccountsException;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 
 /**
- * Class AuthorizationTest.
+ * Class AuthorizationCodeTest.
  */
-class AuthorizationTest extends \PHPUnit_Framework_TestCase
+class AuthorizationCodeTest extends \PHPUnit_Framework_TestCase
 {
     const URL = 'https://accounts.spotify.com';
     /**
@@ -37,7 +37,7 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
      */
     public function authorizationUrl()
     {
-        $url = (new Authorization())->getAuthorizationURL(self::$authUrlConfig);
+        $url = (new AuthorizationCode())->getAuthorizationURL(self::$authUrlConfig);
         $expectedUri = '/authorize?client_id=xyz&response_type=code&redirect_uri=yxz&scope=playlist-read-private';
         static::assertEquals(self::URL.$expectedUri, $url);
     }
@@ -49,7 +49,7 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
     {
         $config = [];
         $this->expectException(MissingOptionsException::class);
-        (new Authorization())->getAccessTokens($config, '');
+        (new AuthorizationCode())->getAccessTokens($config, '');
     }
 
     /**
@@ -59,7 +59,7 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
     {
         $config = [];
         $this->expectException(MissingOptionsException::class);
-        (new Authorization())->getAuthorizationURL($config);
+        (new AuthorizationCode())->getAuthorizationURL($config);
     }
 
     /**
@@ -70,7 +70,7 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
         $client = $this->getClientMock();
         $response = new Response(500);
         $client->expects(static::once())->method('request')->willReturn($response);
-        $authorization = new Authorization($client);
+        $authorization = new AuthorizationCode($client);
 
         $this->expectException(SpotifyAccountsException::class);
         $authorization->getAccessTokens(self::$accessTokensConfig, '');
@@ -91,7 +91,7 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
         ];
         $response = new Response(200, [], json_encode($body));
         $client->expects(static::once())->method('request')->willReturn($response);
-        $authorization = new Authorization($client);
+        $authorization = new AuthorizationCode($client);
 
         $accessTokens = $authorization->getAccessTokens(self::$accessTokensConfig, '');
 
@@ -109,7 +109,7 @@ class AuthorizationTest extends \PHPUnit_Framework_TestCase
     {
         $client = $this->getClientMock();
         $client->expects(static::once())->method('request')->willThrowException(new \Exception());
-        $authorization = new Authorization($client);
+        $authorization = new AuthorizationCode($client);
         $this->expectException(SpotifyAccountsException::class);
         $authorization->getAccessTokens(self::$accessTokensConfig, '');
     }

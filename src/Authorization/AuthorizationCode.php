@@ -1,20 +1,20 @@
 <?php
 
-namespace SpotifyClient;
+namespace SpotifyClient\Authorization;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\RequestOptions;
 use SpotifyClient\Constant\Request;
 use SpotifyClient\Constant\Response;
 use SpotifyClient\DataType\AccessTokens;
 use SpotifyClient\Exceptions\SpotifyAccountsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\PropertyAccess\PropertyAccess;
 
 /**
  * Class Authorization.
  */
-class Authorization
+class AuthorizationCode
 {
     const URL = 'https://accounts.spotify.com';
 
@@ -57,6 +57,22 @@ class Authorization
             'scope',
             'expires_in',
             'refresh_token',
+        ];
+
+        return (new OptionsResolver())
+            ->setRequired($required);
+    }
+
+    /**
+     * @return OptionsResolver
+     */
+    private static function getOptionsAuthTokensRefresh() : OptionsResolver
+    {
+        $required = [
+            'access_token',
+            'token_type',
+            'scope',
+            'expires_in',
         ];
 
         return (new OptionsResolver())
@@ -123,14 +139,40 @@ class Authorization
     }
 
     /**
-     * Not implemented
-     * @param array $accessTokens
+     * @param AccessTokens $accessTokens
+     * @param string       $clientId
+     * @param string       $clientSecret
      *
-     * @return array
+     * @return AccessTokens
+     * @throws SpotifyAccountsException
      */
-    public function refreshAccessTokens(array $accessTokens) : array
+    public function refreshAccessTokens(AccessTokens $accessTokens, string $clientId, string $clientSecret) : AccessTokens
     {
-        /** @todo implement */
-        return $accessTokens;
+        $authorization = base64_encode($clientId.':'.$clientSecret);
+        $options = [
+            'form_params' => [
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $accessTokens->getRefreshToken(),
+            ],
+            RequestOptions::HEADERS => ['Authorization' => $authorization]
+        ];
+
+        try {
+            $response = $this->client->request(Request::POST, self::URL.'/api/token', $options);
+        } catch (\Exception $ex) {
+            throw new SpotifyAccountsException($ex->getMessage());
+        }
+        if (Response::HTTP_OK !== $response->getStatusCode()) {
+            throw new SpotifyAccountsException('Response status code: '.$response->getStatusCode());
+        }
+
+        $response = json_decode($response->getBody()->getContents(), true);
+        $response = self::getOptionsAuthTokensRefresh()->resolve($response);
+
+        return $accessTokens
+            ->setAccessToken($response['access_token'])
+            ->setTokenType($response['token_type'])
+            ->setScope($response['scope'])
+            ->setExpiresIn($response['expires_in']);
     }
 }
