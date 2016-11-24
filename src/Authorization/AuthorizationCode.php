@@ -12,7 +12,7 @@ use SpotifyClient\Exceptions\SpotifyAccountsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class Authorization.
+ * Class AuthorizationCode.
  */
 class AuthorizationCode
 {
