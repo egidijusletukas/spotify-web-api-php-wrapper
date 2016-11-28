@@ -29,6 +29,7 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * ~~Remove user's saved albums~~
 * ~~Check user's saved albums~~
 * Search for an album
+
 ### Artist
 * Get an artist
 * Get several artists
@@ -41,6 +42,7 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * Check if User Follows Users or Artists
 * Get a user's top artists or tracks
 * Search for an artist
+
 ### Browse
 * Get a list of featured playlists
 * Get a list of new releases
@@ -48,6 +50,7 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * Get a category
 * Get a category's playlists
 * Get recommendations based on seeds
+
 ### Follow
 * Get Followed Artists
 * Follow Artists or Users
@@ -56,6 +59,7 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * ~~Follow a Playlist~~
 * ~~Unfollow a Playlist~~
 * Check if Users Follow a Playlist
+
 ### “Your Music” Library
 * ~~Save tracks for user~~
 * Get user's saved tracks
@@ -65,8 +69,10 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * Get user's saved albums
 * ~~Remove user's saved albums~~
 * ~~Check user's saved albums~~
+
 ### Personalization
 * Get a user's top artists or tracks
+
 ### Playlist
 * Get a list of featured playlists
 * Get a category's playlists
@@ -84,11 +90,14 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * ~~Reorder a playlist's tracks~~
 * ~~Replace a playlist's tracks~~
 * Check if Users Follow a Playlist
+
 ### User Profile
 * Get current user's profile
 * Get a user's profile
+
 ### Search
 * Search for an Item
+
 ### Track
 * Get Audio Analysis for a Track
 * Get audio features for a track
