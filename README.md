@@ -1,6 +1,7 @@
 # spotify-web-api-php-wrapper [![Build Status](https://travis-ci.org/egidijusletukas/php-spotify-client-wrapper.svg?branch=develop)](https://travis-ci.org/egidijusletukas/php-spotify-client-wrapper) [![Coverage Status](https://coveralls.io/repos/github/egidijusletukas/php-spotify-client-wrapper/badge.svg?branch=develop)](https://coveralls.io/github/egidijusletukas/php-spotify-client-wrapper?branch=develop)
 
-Spotify WEB API PHP wrapper. Currently under development.
+Spotify WEB API PHP wrapper. 
+Currently under development.
 
 ## Requirements
 * PHP 7.0+
@@ -17,7 +18,7 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 
 <!--## Examples-->
 
-## Web API Endpoint coverage
+## Web API endpoint coverage
 ### Album
 * Get an album
 * Get several albums
@@ -104,3 +105,11 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * Get audio features for several tracks
 * Get a track
 * Get several tracks
+
+## Web API authorization flows coverage
+* Authorization Code
+* Client Credentials
+* ~~Implicit Grant~~
+
+## License
+MIT
