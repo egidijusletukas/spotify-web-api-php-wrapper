@@ -1,4 +1,4 @@
-# spotify-web-api-php-wrapper [![Build Status](https://travis-ci.org/egidijusletukas/php-spotify-client-wrapper.svg?branch=develop)](https://travis-ci.org/egidijusletukas/php-spotify-client-wrapper) [![Coverage Status](https://coveralls.io/repos/github/egidijusletukas/php-spotify-client-wrapper/badge.svg?branch=develop)](https://coveralls.io/github/egidijusletukas/php-spotify-client-wrapper?branch=develop)
+# spotify-web-api-php-wrapper [![Build Status](https://travis-ci.org/egidijusletukas/spotify-web-api-php-wrapper.svg?branch=master)](https://travis-ci.org/egidijusletukas/spotify-web-api-php-wrapper) [![Coverage Status](https://coveralls.io/repos/github/egidijusletukas/spotify-web-api-php-wrapper/badge.svg?branch=develop)](https://coveralls.io/github/egidijusletukas/spotify-web-api-php-wrapper?branch=master)
 
 Spotify WEB API PHP wrapper. 
 Currently under development.
