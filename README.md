@@ -27,7 +27,7 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * ~~Save albums for user~~
 * Get user's saved albums
 * ~~Remove user's saved albums~~
-* Check user's saved albums
+* ~~Check user's saved albums~~
 * Search for an album
 #### Artist
 * Get an artist
@@ -37,7 +37,7 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * Get an artist's related artists
 * Get Followed Artists
 * Follow Artists or Users
-* Unfollow Artists or Users
+* ~~Unfollow Artists or Users~~
 * Check if User Follows Users or Artists
 * Get a user's top artists or tracks
 * Search for an artist
@@ -51,38 +51,38 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 #### Follow
 * Get Followed Artists
 * Follow Artists or Users
-* Unfollow Artists or Users
+* ~~Unfollow Artists or Users~~
 * Check if User Follows Users or Artists
-* Follow a Playlist
-* Unfollow a Playlist
+* ~~Follow a Playlist~~
+* ~~Unfollow a Playlist~~
 * Check if Users Follow a Playlist
 #### “Your Music” Library
-* Save tracks for user
+* ~~Save tracks for user~~
 * Get user's saved tracks
-* Remove user's saved tracks
+* ~~Remove user's saved tracks~~
 * Check user's saved tracks
-* Save albums for user
+* ~~Save albums for user~~
 * Get user's saved albums
-* Remove user's saved albums
-* Check user's saved albums
+* ~~Remove user's saved albums~~
+* ~~Check user's saved albums~~
 #### Personalization
 * Get a user's top artists or tracks
 #### Playlist
 * Get a list of featured playlists
 * Get a category's playlists
-* Follow a Playlist
-* Unfollow a Playlist
+* ~~Follow a Playlist~~
+* ~~Unfollow a Playlist~~
 * Search for a playlist
 * Get a list of a user's playlists
-* Get a list of the current user's playlists
+* ~~Get a list of the current user's playlists~~
 * Get a playlist
 * Get a playlist's tracks
-* Create a playlist
-* Change a playlist's details
-* Add tracks to a playlist
-* Remove tracks from a playlist
-* Reorder a playlist's tracks
-* Replace a playlist's tracks
+* ~~Create a playlist~~
+* ~~Change a playlist's details~~
+* ~~Add tracks to a playlist~~
+* ~~Remove tracks from a playlist~~
+* ~~Reorder a playlist's tracks~~
+* ~~Replace a playlist's tracks~~
 * Check if Users Follow a Playlist
 #### User Profile
 * Get current user's profile
