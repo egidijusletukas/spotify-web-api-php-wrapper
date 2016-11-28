@@ -13,6 +13,7 @@ fi
 
 if $HAS_PHP_CS_FIXER; then
     $PHP_CS_FIXER fix $ROOT/src --level=psr2;
+    $PHP_CS_FIXER fix $ROOT/tests --level=psr2;
 else
     echo ""
     echo "Please install php-cs-fixer, e.g.:"

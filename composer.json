@@ -1,5 +1,5 @@
 {
-    "name": "egidijusletukas/php-spotify-client-wrapper",
+    "name": "egidijusletukas/spotify-web-api-php-wrapper",
     "description": "",
     "license": "MIT",
     "homepage": "https://github.com/egidijusletukas/php-spotify-client-wrapper",
@@ -13,14 +13,19 @@
         }
     ],
     "require": {
-        "php": "^7.0"
+        "php": "^7.0",
+        "guzzlehttp/guzzle": "^6.2",
+        "symfony/options-resolver": "^3.1",
+        "satooshi/php-coveralls": "^1.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^1.12"
+        "friendsofphp/php-cs-fixer": "^1.12",
+        "symfony/var-dumper": "^3.1",
+        "phpunit/phpunit": "^5.6"
     },
     "autoload": {
         "psr-4": {
-            "SpotifyClient\\": "src"
+            "SpotifyClient\\": "src/"
         }
     }
 }
