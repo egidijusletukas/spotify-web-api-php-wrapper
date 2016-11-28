@@ -18,7 +18,7 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 <!--## Examples-->
 
 ## Web API Endpoint coverage
-#### Album
+### Album
 * Get an album
 * Get several albums
 * Get an album's tracks
@@ -29,7 +29,7 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * ~~Remove user's saved albums~~
 * ~~Check user's saved albums~~
 * Search for an album
-#### Artist
+### Artist
 * Get an artist
 * Get several artists
 * Get an artist's albums
@@ -41,14 +41,14 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * Check if User Follows Users or Artists
 * Get a user's top artists or tracks
 * Search for an artist
-#### Browse
+### Browse
 * Get a list of featured playlists
 * Get a list of new releases
 * Get a list of categories
 * Get a category
 * Get a category's playlists
 * Get recommendations based on seeds
-#### Follow
+### Follow
 * Get Followed Artists
 * Follow Artists or Users
 * ~~Unfollow Artists or Users~~
@@ -56,7 +56,7 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * ~~Follow a Playlist~~
 * ~~Unfollow a Playlist~~
 * Check if Users Follow a Playlist
-#### “Your Music” Library
+### “Your Music” Library
 * ~~Save tracks for user~~
 * Get user's saved tracks
 * ~~Remove user's saved tracks~~
@@ -65,9 +65,9 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * Get user's saved albums
 * ~~Remove user's saved albums~~
 * ~~Check user's saved albums~~
-#### Personalization
+### Personalization
 * Get a user's top artists or tracks
-#### Playlist
+### Playlist
 * Get a list of featured playlists
 * Get a category's playlists
 * ~~Follow a Playlist~~
@@ -84,12 +84,12 @@ php composer.phar require egidijusletukas/spotify-web-api-php-wrapper
 * ~~Reorder a playlist's tracks~~
 * ~~Replace a playlist's tracks~~
 * Check if Users Follow a Playlist
-#### User Profile
+### User Profile
 * Get current user's profile
 * Get a user's profile
-#### Search
+### Search
 * Search for an Item
-#### Track
+### Track
 * Get Audio Analysis for a Track
 * Get audio features for a track
 * Get audio features for several tracks
