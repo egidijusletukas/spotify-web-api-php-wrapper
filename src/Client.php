@@ -661,7 +661,7 @@ class Client
             }
         }
 
-        return empty($result) ? $result : ['query' => $result];
+        return empty($result) ? $result : [RequestOptions::QUERY => $result];
     }
 
     /**
